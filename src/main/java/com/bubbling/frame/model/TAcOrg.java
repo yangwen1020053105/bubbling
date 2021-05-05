@@ -1,11 +1,10 @@
 package com.bubbling.frame.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 
 /**
@@ -18,10 +17,16 @@ public class TAcOrg implements java.io.Serializable {
 	private String id;
 	private String orgName;
 	private String pid;
+	@TableField(fill = FieldFill.INSERT)
 	private String createUser;
-	private Timestamp createTime;
+	@TableField(fill = FieldFill.INSERT)
+	private Date createTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateUser;
-	private Timestamp updateTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	private Date updateTime;
+	@TableLogic
+	@TableField(fill = FieldFill.INSERT)
 	private Integer isValid;
 
 }

@@ -52,7 +52,8 @@ public class FrameService extends BaseService implements IFrameService {
 	}
 	@Override
 	public ResponseBean saveFunc(Map<String, Object> map) throws Exception {
-		TAcFunc func=new TAcFunc((String) map.get("pid"), (String) map.get("funcName"), (String) map.get("viewPath"), (String) map.get("imagePath"), null, SessionUtils.getUserId(), new Date(), null, null,1);
+		TAcFunc func=new TAcFunc();
+		func=BaseUtils.mapToObject(map, func);
 		if (BaseUtils.isNull((String)map.get("id"))) {
 			tAcFuncMapper.insert(func);
 		}else {
@@ -85,7 +86,7 @@ public class FrameService extends BaseService implements IFrameService {
 		user=BaseUtils.mapToObject(map, user);
 		if (BaseUtils.isNull(user.getId())) {
 			QueryWrapper wrapper=new QueryWrapper();
-			wrapper.eq("user_name", user.getUserName());
+			wrapper.eq("login_name", user.getLoginName());
 			TAcUser userQuery=tAcUserMapper.selectOne(wrapper);
 			if (BaseUtils.isNotNull(userQuery)) {
 				if (userQuery.getIsValid()==1) {
@@ -96,6 +97,7 @@ public class FrameService extends BaseService implements IFrameService {
 				}
 			}
 		}
+		user.setIsValid(1);
 		tAcUserMapper.insertOrUpdate(user);
 		if (BaseUtils.isNull((String)map.get("id"))) {
 			TAcUserOrg tAcUserOrg=new TAcUserOrg();
@@ -110,7 +112,7 @@ public class FrameService extends BaseService implements IFrameService {
 		TAcRole role=new TAcRole();
 		role=BaseUtils.mapToObject(map, role);
 		if (BaseUtils.isNull(role.getId())) {
-			TAcRole roleQuery=tAcRoleMapper.queryRoleByOrgId((String) map.get("orgId"),role.getRoleName());
+			TAcRole roleQuery=tAcRoleMapper.queryRoleByOrgIdAndName((String) map.get("orgId"),role.getRoleName());
 			if (BaseUtils.isNotNull(roleQuery)) {
 				if (roleQuery.getIsValid()==1) {
 					return ResponseBean.error("300", "角色名已存在！");
@@ -177,14 +179,12 @@ public class FrameService extends BaseService implements IFrameService {
 		String userId=(String) map.get("userId");
 		String orgId=(String) map.get("orgId");
 		QueryWrapper queryWrapper=new QueryWrapper();
-		queryWrapper.select("a.id as value","a.role_name as title ");
-		queryWrapper.in("id","select role_id from t_ac_role_org b where b.org_id='"+orgId+"' and b.id_valid=1");
-		queryWrapper.eq("is_valid",1);
+		queryWrapper.select("id as value","role_name as title ");
+		queryWrapper.inSql("id","select role_id from t_ac_role_org b where b.org_id='"+orgId+"' and b.is_valid=1");
 		List<Map<String, Object>> rolesMaps=tAcRoleMapper.selectMaps(queryWrapper);
 		queryWrapper=new QueryWrapper();
-		queryWrapper.select("a.id as id");
-		queryWrapper.in("id","select role_id from t_ac_user_role b where b.user_id='"+userId+"' and b.id_valid=1");
-		queryWrapper.eq("id_valid",1);
+		queryWrapper.select("id as id");
+		queryWrapper.inSql("id","select role_id from t_ac_user_role b where b.user_id='"+userId+"' and b.is_valid=1");
 		List<Map<String, Object>> roleSelectMaps=tAcRoleMapper.selectMaps(queryWrapper);
 		Map<String, Object> retMap=new HashMap<String, Object>();
 		retMap.put("roles", rolesMaps);
@@ -256,10 +256,7 @@ public class FrameService extends BaseService implements IFrameService {
 	@Override
 	public ResponseBean deleteRoleIsVaild(Map<String, Object> map) throws Exception {
 		String id= (String) map.get("id");
-		TAcRole tAcRole=new TAcRole();
-		tAcRole.setId(id);
-		tAcRole.setIsValid(2);
-		tAcRoleMapper.updateById(tAcRole);
+		tAcRoleMapper.deleteById(id);
 		return ResponseBean.success();
 	}
 	@Override

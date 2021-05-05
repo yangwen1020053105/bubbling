@@ -1,9 +1,8 @@
 package com.bubbling.frame.model;
 
-import java.sql.Timestamp;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 @Data
@@ -13,10 +12,16 @@ public class TAcRoleFunc implements java.io.Serializable {
 	private String id;
 	private String funcId;
 	private String roleId;
+	@TableField(fill = FieldFill.INSERT)
 	private String createUser;
-	private Timestamp createTime;
+	@TableField(fill = FieldFill.INSERT)
+	private Date createTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateUser;
-	private Timestamp updateTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	private Date updateTime;
+	@TableLogic
+	@TableField(fill = FieldFill.INSERT)
 	private Integer isValid;
 
 }

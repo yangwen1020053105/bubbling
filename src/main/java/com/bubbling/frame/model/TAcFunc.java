@@ -2,9 +2,7 @@ package com.bubbling.frame.model;
 
 import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +11,6 @@ import lombok.NoArgsConstructor;
  * TAcFunc entity. @author MyEclipse Persistence Tools
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @TableName("t_ac_func")
 public class TAcFunc implements java.io.Serializable {
 	@TableId(type = IdType.ASSIGN_UUID)
@@ -23,9 +19,15 @@ public class TAcFunc implements java.io.Serializable {
 	private String funcName;
 	private String viewPath;
 	private String imagePath;
+	@TableField(fill = FieldFill.INSERT)
 	private String createUser;
+	@TableField(fill = FieldFill.INSERT)
 	private Date createTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateUser;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private Date updateTime;
+	@TableLogic
+	@TableField(fill = FieldFill.INSERT)
 	private Integer isValid;
 }

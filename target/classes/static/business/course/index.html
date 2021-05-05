@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>我的病程</title>
+	<meta charset="UTF-8"/>
+    <meta name="keywords" content="keyword1,keyword2,keyword3">
+    <meta name="description" content="this is my page">
+    <meta name="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <link rel="stylesheet" href="../../css/iconfont/iconfont.css">
+    <link rel="stylesheet" href="../../css/X-admin/css/xadmin.css">
+    <link rel="stylesheet" href="../../css/base/common.css">
+    <link rel="stylesheet" href="../../css/layuinotice/dist/notice.css">
+    <link rel="stylesheet" href="../../css/formSelects/formSelects-v4.css">
+    <link rel="stylesheet" href="../../css/simditor/site/assets/styles/simditor.css" />
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  
+  <body ng-app="app" ng-controller="controller" class="iframeBody">
+    <div class="top">
+          <h4 class="title">我的病程</h4>
+    </div>
+    <div class="layui-fluid" >
+      <div class="layui-row layui-col-space15">
+         <div class="layui-card">
+            <div class="layui-card-body ">
+               <form class="layui-form layui-col-space5">
+                    <div class="layui-inline layui-show-xs-block">
+                        <input type="text" ng-model="search.patientId" placeholder="请输入病号" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-inline layui-show-xs-block">
+                        <input type="text" ng-model="search.name" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-inline " style="width: 300px;">
+                        <input type="text" class="xmselect" ng-model="search.zd">
+                        <select id="zdSearch"  xm-select="zdSearch" xm-select-type="1" xm-select-search="" xm-select-search-type="dl" xm-select-show-count="2">
+                          <option value="">请选择疾病名称</option>           
+                        </select>
+                    </div>
+                    <div class="layui-inline layui-show-xs-block">
+                        <input type="text" ng-model="search.zdtext" placeholder="请输入疾病名称" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-inline layui-show-xs-block">
+                        <button class="layui-btn" ng-click="searchList()"><i class="iconfont iconsousuo"></i></button>
+                    </div>
+                </form>
+            </div>
+            <div class="layui-card-header moddelType">
+                <button class="layui-btn" ng-click="addBaseInfo()"><i class="iconfont icontianjia"> </i>添加基本信息</button>
+                <button class="layui-btn" ng-click="updateBaseInfo()"><i class="iconfont iconxiugai"> </i>修改基本信息</button>
+                <button class="layui-btn" ng-click="delBaseInfo()"><i class="iconfont iconshanchu"> </i>删除基本信息</button>
+            </div>
+            <div class="layui-card-body">
+                <table id="courseTable" lay-filter="courseTable"></table>
+            </div>
+            <div class="layui-row layui-col-space15">
+                <div class="layui-col-md5">
+                   <div class="layui-card-header">
+                       <button class="layui-btn moddelType" ng-click="addBc()"><i class="iconfont icontianjia"> </i>添加病程</button>
+                       <button class="layui-btn moddelType" ng-click="delBc()"><i class="iconfont iconshanchu"> </i>删除病程</button>
+                   </div>
+                   <div class="layui-card-body">
+                       <table id="bcTable" lay-filter="bcTable"></table>
+                   </div>
+                </div>
+                <div class="layui-col-md7">
+                   <div class="layui-card-header">
+                       <button class="layui-btn moddelType" ng-click="addCourse()"><i class="iconfont icontianjia"> </i>添加病历</button>
+                       <button class="layui-btn" ng-click="updateCourse()"><i class="iconfont iconxiugai"> </i>修改病历</button>
+                       <button class="layui-btn moddelType" ng-click="delCourse()"><i class="iconfont iconshanchu"> </i>删除病历</button>
+                       <button class="layui-btn" ng-click="seeCourse()"><i class="iconfont iconchakan1"> </i>查看病历</button>
+                       <button class="layui-btn hide" ng-click="changeTbale()" id="tableTypeBut">查看检查概览</button>
+                   </div>
+                   <div class="layui-card-body">
+                      <div id="medicalTableBox"><table id="medicalTable" lay-filter="medicalTable"></table></div>
+                      <!-- <div id="jcglTableBox" class="hide"><table id="jcglTable" lay-filter="jcglTable"></table></div> -->
+                   </div>
+                </div>
+            </div>
+         </div>
+      </div>
+      
+    </div>
+    <div id="model" class="layui-layer-iframe" style="overflow:auto;">
+      <div class="layui-layer-title" style="">病历管理</div>
+      <div class="layui-layer-content">
+      <div class="layui-row">
+        <div class="layui-col-md3">
+          <div class="layui-form-item">
+             <label class="layui-form-label">病人编号：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 100%;text-align:left;">{{medical.patientId}}</label>
+             </div>
+          </div>
+        </div>
+        <div class="layui-col-md3">
+          <div class="layui-form-item">
+             <label class="layui-form-label">姓名：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 100%;text-align:left;">{{medical.name}}</label>             
+             </div>
+          </div>
+        </div>
+        <div class="layui-col-md3">
+          <div class="layui-form-item">
+             <label class="layui-form-label">性别：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 100%;text-align:left;">{{medical.sex==1?'男':'女'}}</label>
+             </div>
+          </div>
+        </div>
+        <div class="layui-col-md3">
+          <div class="layui-form-item">
+             <label class="layui-form-label">年龄：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 80%;text-align:left;">{{medical.age}}岁</label>
+             </div>
+          </div>
+        </div>
+      </div>   
+      <div class="layui-row">
+        <div class="layui-col-md4">
+          <div class="layui-form-item">
+             <label class="layui-form-label">过敏药物：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 100%;text-align:left;">{{medical.allergyDrugs}}</label>
+             </div>
+          </div>
+        </div>
+        <div class="layui-col-md4">
+          <div class="layui-form-item">
+             <label class="layui-form-label">诊断：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 100%;text-align:left;" id="showzd"></label>
+             </div>
+          </div>
+        </div>
+        <div class="layui-col-md4">
+          <div class="layui-form-item">
+             <label class="layui-form-label" style="width: 100px;">重要疾病史：</label>
+             <div class="layui-input-block">
+               <label class="layui-form-label" style="width: 80%;text-align:left;">{{jws.jws}}</label>
+             </div>
+          </div>
+        </div>
+      </div>          
+      </div>
+      <div class="layui-layer-content">
+         <div class="layui-tab layui-tab-card" style="margin-top: 0px;">
+           <ul class="layui-tab-title">
+             <li id="blsxLi" class="layui-this">病历书写</li>
+             <li class="tabgl">病情概览</li>
+             <li class="tabgl">检查概览</li>
+             <li class="tabgl">科研观察</li>
+           </ul>
+           <div class="layui-tab-content">
+             <div class="layui-tab-item layui-show">
+               <form class="layui-form" id="blsx">
+                  <div class="layui-row" style="margin-bottom: 10px;" id="panelRow" >
+                    <input type="text" class="hide" ng-model="panel.panelStr">
+                    <input type="checkbox" id="zzfzSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="主诊/复诊">
+                    <input type="checkbox" id="xbsSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="现病史">
+                    <input type="checkbox" id="yjsSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="平素月经">
+                    <input type="checkbox" id="mcyjSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="末次月经">
+                    <input type="checkbox" id="dxSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="带下">
+                    <input type="checkbox" id="ycsSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="孕产史">
+                    <input type="checkbox" id="chqkSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="产后情况">
+                    <input type="checkbox" id="jwsSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="既往史">
+                    <input type="checkbox" id="grsSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="个人史">
+                    <input type="checkbox" id="tgjcSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="体格检查">
+                    <input type="checkbox" id="fzjcSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="辅助检查">
+                    <input type="checkbox" id="clSelect" onchange="blSelect(this)" name="select" lay-skin="primary" title="处理">                    
+                  </div>
+                  <div class="layui-collapse">
+                    <div class="layui-colla-item" id='jbxxPanel'>
+                      <h2 class="layui-colla-title">基本信息</h2>
+                      <div class="layui-colla-content layui-show">
+                         <div class="layui-row">
+                            <div class="layui-col-md2">
+                              <div class="layui-form-item">
+                                 <label class="layui-form-label"><span class="x-red">*</span>病人编号：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" style="display: none;" verify="required" ng-model="medical.id" autocomplete="off" placeholder="">
+                                   <input type="text" class="layui-input" verify="required" ng-model="medical.patientId" autocomplete="off" placeholder="">
+                                 </div>
+                              </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label"><span class="x-red">*</span>就诊时间：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" verify="required" name="visitingTime" id="visitingTime" ng-model="medical.visitingTime" placeholder="yyyy-MM-dd HH:mm:ss">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md8">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label"><span class="x-red">*</span>就诊地点：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" verify="required" name="visitingAddress" id="visitingAddress" ng-model="medical.visitingAddress" autocomplete="off" placeholder="请输入就诊地点">
+                                 </div>
+                               </div>
+                            </div>
+                         </div>
+                         <div class="layui-row">
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label"><span class="x-red">*</span>姓名：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" verify="required" name="name" id="name"  ng-model="medical.name" autocomplete="off" placeholder="请输入姓名">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">性别：</label>
+                                 <div class="layui-input-block" id="sex" modelVal="medical" modelId="sex">
+                                     
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label"><span class="x-red">*</span>年龄：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" verify="required" name="age" id="age" ng-model="medical.age"  autocomplete="off" placeholder="请输入年龄">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">婚产情况：</label>
+                                 <div class="layui-input-block">
+                                   <select name="maritalStatus" id="maritalStatusa" ng-model="medical.maritalStatus" ng-options="ob.val as ob.display for ob in maritalStatusValue">
+                                     <option value=""></option>
+                                   </select>
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">生育要求：</label>
+                                 <div class="layui-input-block">
+                                   <select name="fertilityRequirement" id="fertilityRequirement" ng-model="medical.fertilityRequirement" ng-options="ob.val as ob.display for ob in fertilityRequirementValue">
+                                     <option value=""></option>
+                                   </select>
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">避孕方式：</label>
+                                 <div class="layui-input-block">
+                                   <select name="contraceptionStatus" id="contraceptionStatus" ng-model="medical.contraceptionStatus" ng-options="ob.val as ob.display for ob in contraceptionStatusValue">
+                                     <option value=""></option>
+                                   </select>
+                                 </div>
+                               </div>
+                            </div>
+                         </div>
+                         <div class="layui-row">
+                            <div class="layui-col-md4">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">职业：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" name="occupation" id="occupation" ng-model="medical.occupation" autocomplete="off" placeholder="请输入职业">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md4">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">过敏药物：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" name="allergyDrugs" id="allergyDrugs" ng-model="medical.allergyDrugs" autocomplete="off" placeholder="请输入过敏药物">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md4">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">就医途径：</label>
+                                 <div class="layui-input-block">
+                                   <select name="medicineAccess" id="medicineAccess" ng-model="medical.medicineAccess" ng-options="ob.val as ob.display for ob in medicineAccessValue">
+                                     <option value=""></option>
+                                   </select>
+                                 </div>
+                               </div>
+                            </div>
+                         </div>
+                         <div class="layui-row">
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">身高(cm)：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" name="name" id="name"  ng-model="medical.sg" autocomplete="off" placeholder="请输入身高">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">体重(kg)：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" name="name" id="name"  ng-model="medical.tz" autocomplete="off" placeholder="请输入体重">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md2">
+                               
+                            </div>
+                            <div class="layui-col-md2">
+                               
+                            </div>
+                            <div class="layui-col-md2">
+                               
+                            </div>
+                            <div class="layui-col-md2">
+                               
+                            </div>
+                         </div>
+                         
+                         <div class="layui-row">
+                            <div class="layui-col-md4">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">联系电话：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" name="phone" id="phone" onblur="displayResult(this,'phone')"  ng-model="medical.phone" autocomplete="off" placeholder="请输入电话">
+                                 </div>
+                               </div>
+                            </div>
+                            <div class="layui-col-md8">
+                               <div class="layui-form-item">
+                                 <label class="layui-form-label">家庭住址：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input" name="address" id="address" ng-model="medical.address" autocomplete="off" placeholder="请输入家庭住址">
+                                 </div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='zzfzPanel'>
+                      <h2 class="layui-colla-title">主诊/复诊</h2>
+                      <div class="layui-colla-content">
+                        <textarea placeholder="主诊/复诊" class="layui-textarea" ng-model="zjfj.zjfj"></textarea>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='xbsPanel'>
+                      <h2 class="layui-colla-title">现病史</h2>
+                      <div class="layui-colla-content">
+                        <textarea placeholder="病程经过+现症见+舌脉象" class="layui-textarea" ng-model="xbs.xbs"></textarea>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='yjsPanel'>
+                      <h2 class="layui-colla-title">平素月经</h2>
+                      <div class="layui-colla-content">
+                        <div class="layui-row" style="margin-bottom: 15px;">
+                           <!-- <div class="layui-col-md10">
+                             <div class="layui-row">
+                               <div class="layui-col-md1"><label class="layui-form-label">平素经期：</label></div>
+                               <div class="layui-col-md2"><div class="layui-row"><div class="layui-col-md11"><input type="text" class="layui-input" ng-model="yjs.ccnl" onblur="displayResult(this,'integer')" placeholder="初潮年龄"></div><div class="layui-col-md1" style="line-height: 38px;">*(</div></div></div>
+                               <div class="layui-col-md2"><div class="layui-row"><div class="layui-col-md11"><input type="text" class="layui-input"  id="jq" ng-model="yjs.jq" onblur="displayResult(this,'integer')" placeholder="经期"></div><div class="layui-col-md1" style="line-height: 38px;">/</div></div></div>
+                               <div class="layui-col-md2"><div class="layui-row"><div class="layui-col-md11"><input type="text" class="layui-input"  id="zq" ng-model="yjs.zq" onblur="displayResult(this,'integer')" placeholder="周期"></div><div class="layui-col-md1" style="line-height: 38px;">)=</div></div></div>
+                               <div class="layui-col-md1"><input type="text" class="layui-input" disabled="disabled" id="psjq" value="{{yjs.ccnl*(yjs.jq/yjs.zq)}}"></div>
+                               
+                             </div>
+                           </div> -->
+                           <div class="layui-col-md1" style="margin-top: 22px;"><label class="layui-form-label">平素经期：</label></div>
+                           <div class="layui-col-md1" style="margin-top: 22px;margin-right: 10px;">
+                             <input type="text" class="layui-input" ng-model="yjs.ccnl" onblur="displayResult(this,'integer')" placeholder="初潮年龄">
+                           </div>
+                           <div class="layui-col-md1" style="margin-right: 10px;">
+                             <div class="layui-row" style="margin-bottom: 5px;">
+                               <input type="text" class="layui-input"  id="jq" ng-model="yjs.jq" placeholder="经期">
+                             </div>
+                             <div class="layui-row"><div style="border-bottom-style: solid;border-bottom-width: 1px;width: 100%;"></div></div>
+                             <div class="layui-row" style="margin-top: 5px;">
+                               <input type="text" class="layui-input"  id="zq" ng-model="yjs.zq" placeholder="周期">
+                             </div>
+                           </div>
+                           <div class="layui-col-md1" style="margin-top: 22px;">
+                             <input type="text" class="layui-input" ng-model="yjs.mcjq" placeholder="末次经期">
+                           </div>
+                        </div>
+                        <div class="layui-row">
+                          <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                               <label class="layui-form-label">色：</label>
+                               <div class="layui-input-block" id="color" modelVal="yjs" modelId="color">
+
+                               </div>
+                             </div>
+                          </div>
+                          <div class="layui-col-md3" >
+                            <div class="layui-form-item">
+                               <label class="layui-form-label">量：</label>
+                               <div class="layui-input-block" id="liang" modelVal="yjs" modelId="liang">
+
+                               </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md3" style="line-height: 38px;">
+                            <label class="layui-form-label" style="float: left;">浸透</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="yjs.wsjsl" placeholder="数量">
+                            <label style="float: left;">片卫生巾/周期</label>
+                          </div>
+                          <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                               <label class="layui-form-label">痛经：</label>
+                               <div class="layui-input-block">
+                                 <input type="text" class="xmselect" ng-model="yjs.tj">
+                                 <select id="tj"  xm-select="tj" xm-select-type="1" >
+                                 <option value=""></option> 
+                                 </select>
+                               </div>
+                             </div>
+                          </div>
+                        </div>
+                        <div class="layui-row">
+                          <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                               <label class="layui-form-label">血块：</label>
+                               <div class="layui-input-block" id="xk" modelVal="yjs" modelId="xk">
+                                 
+                               </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                               <label class="layui-form-label">腰酸：</label>
+                               <div class="layui-input-block" id="yaosuan" modelVal="yjs" modelId="ys">
+                                 
+                               </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                               <label class="layui-form-label">乳胀：</label>
+                               <div class="layui-input-block" id="rz" modelVal="yjs" modelId="rz">
+                                 
+                               </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md3">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">其它症状：</label>
+                              <div class="layui-input-block">
+                                <input type="text" class="layui-input" ng-model="yjs.qtzz" placeholder="其他症状">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='mcyjPanel'>
+                      <h2 class="layui-colla-title">末次月经</h2>
+                      <div class="layui-colla-content">
+                        <div class="layui-row">
+                          <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">LMP：</label>
+                              <div class="layui-input-block">
+                                <textarea placeholder="LMP" class="layui-textarea lpm" onblur="cxShow(this)" ng-model="yjs.lmp"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">出血情况：</label>
+                              <div class="layui-input-block">
+                                <textarea placeholder="出血情况" class="layui-textarea cx" onblur="cxShow(this)" ng-model="yjs.cxqk"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="layui-row">
+                          <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">PMP：</label>
+                              <div class="layui-input-block">
+                                <textarea placeholder="PMP" class="layui-textarea lpm" onblur="cxShow(this)" ng-model="yjs.pmp"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="layui-row">
+                          <div class="layui-col-md6">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">PPMP：</label>
+                              <div class="layui-input-block">
+                                <textarea placeholder="PPMP" class="layui-textarea lpm" onblur="cxShow(this)" ng-model="yjs.ppmp"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='dxPanel'>
+                      <h2 class="layui-colla-title">带下</h2>
+                      <div class="layui-colla-content">
+                        <div class="layui-row">
+                          <div class="layui-col-md5">
+                            
+                          </div>
+                          <div class="layui-col-md5" style="line-height: 38px;">
+                            <label class="layui-form-label" style="float: left;">色</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="dx.se" placeholder="">
+                            <label style="float: left;">量</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="dx.liang" placeholder="">
+                            <label style="float: left;">质</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="dx.zhi" placeholder="">
+                            <label style="float: left;">味</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="dx.wei" placeholder="">
+                            <label style="float: left;">外阴瘙痒</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="dx.wysy" placeholder="">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='ycsPanel'>
+                      <h2 class="layui-colla-title">孕产史</h2>
+                      <div class="layui-colla-content">
+                        <div class="layui-row">
+                          <div class="layui-col-md5" style="line-height: 38px;">
+                            <label class="layui-form-label" style="float: left;">公式：</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="ycs.gsOne" placeholder="">
+                            <label style="float: left;">—</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="ycs.gsTwo" placeholder="">
+                            <label style="float: left;">—</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="ycs.gsThree" placeholder="">
+                            <label style="float: left;">—</label>
+                            <input style="width: 70px;float: left;" type="text" class="layui-input" ng-model="ycs.gsFour" placeholder="">
+                          </div>
+                          <div class="layui-col-md5" >
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">产子情况：</label>
+                              <div class="layui-input-block">
+                                <textarea placeholder="" class="layui-textarea"  ng-model="ycs.czqk"></textarea>提示：xxxx年顺产1子
+                              </div>
+                            </div>
+                          </div>
+                         </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='chqkPanel'>
+                      <h2 class="layui-colla-title">产后情况</h2>
+                      <div class="layui-colla-content">
+                        <div class="layui-row">
+                          <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">恶露：</label>
+                              <div class="layui-input-block">
+                                <input type="text" class="layui-input" ng-model="chqk.el" placeholder="">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">乳汁：</label>
+                              <div class="layui-input-block">
+                                <input type="text" class="layui-input" ng-model="chqk.rz"  placeholder="">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">大便：</label>
+                              <div class="layui-input-block">
+                                <input type="text" class="layui-input" ng-model="chqk.db"  placeholder="">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="layui-row">
+                          <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">子宫复旧：</label>
+                              <div class="layui-input-block">
+                                <input type="text" class="layui-input" ng-model="chqk.zgfj" placeholder="">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md4">
+                            <div class="layui-form-item">
+                              <label class="layui-form-label">盆底筛查：</label>
+                              <div class="layui-input-block">
+                                <input type="text" class="layui-input" ng-model="chqk.pdsc"  placeholder="">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="layui-col-md4">
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='jwsPanel'>
+                      <h2 class="layui-colla-title">既往史</h2>
+                      <div class="layui-colla-content">
+                        <textarea placeholder="既往史" class="layui-textarea" ng-model="jws.jws"></textarea>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='grsPanel'>
+                      <h2 class="layui-colla-title">个人史</h2>
+                      <div class="layui-colla-content">
+                         <textarea placeholder="个人史" class="layui-textarea" ng-model="grs.grs"></textarea>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='tgjcPanel'>
+                      <h2 class="layui-colla-title">体格检查</h2>
+                      <div class="layui-colla-content">
+                         <textarea placeholder="体格检查" class="layui-textarea" ng-model="tgjc.tgjc"></textarea>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='fzjcPanel'>
+                      <h2 class="layui-colla-title">辅助检查</h2>
+                      <div class="layui-colla-content">
+                        <div class="layui-row">
+                            <div class="layui-col-md4">
+                              <div class="layui-form-item">
+                                 <label class="layui-form-label"><span class="x-red"></span>语言：</label>
+                                 <div class="layui-input-block">
+                                   <input type="text" class="layui-input"  ng-model="medical.yy" autocomplete="off" placeholder="">提示：患者拒绝做检查;患者XX检查未做
+                                 </div>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                          <input type="checkbox" id="bdcgSelect"  onchange="fzjcShow(this)" name="select" lay-skin="primary" title="白带常规">
+                          <input type="checkbox" id="fkjcSelect"  onchange="fzjcShow(this)" name="select" lay-skin="primary" title="妇科检查">
+                          <input type="checkbox" id="dzydjSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="HPV、TCT、电子阴道镜">
+                          <input type="checkbox" id="zytSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="支原体、衣原体">
+                          <input type="checkbox" id="frsSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="B超—非妊娠">
+                          <input type="checkbox" id="rsqSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="B超—妊娠期">
+                          <input type="checkbox" id="xjslxSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="性激素六项">
+                          <input type="checkbox" id="ysxSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="孕三项">
+                          <input type="checkbox" id="hcgSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="HCG">
+                          <input type="checkbox" id="amhSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="AMH">
+                          <input type="checkbox" id="jgSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="甲功">
+                          <input type="checkbox" id="yswxSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="优生五项（TORCH）">
+                          <input type="checkbox" id="ysSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="叶酸">
+                          <input type="checkbox" id="szmyktSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="生殖免疫抗体">
+                          <input type="checkbox" id="nxgnSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="凝血功能">
+                          <input type="checkbox" id="slgjcSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="输卵管检查">
+                          <input type="checkbox" id="jycgSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="精液常规+顶体酶">
+                          <input type="checkbox" id="qtSelect" onchange="fzjcShow(this)" name="select" lay-skin="primary" title="其他">                          
+                        </div>
+                        <div class="layui-row">
+                        <div id="bdcgPanel" class="hide fzjcTable">
+                          <h4 class="title">白带常规</h4>
+                          <table id="bdcg" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="fkjcPanel" class="hide fzjcTable">
+                          <h4 class="title">妇科检查</h4>
+                          <table id="fkjc" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="dzydjPanel" class="hide fzjcTable">
+                          <h4 class="title">HPV、TCT、电子阴道镜</h4>
+                          <table id="dzydj" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="zytPanel" class="hide fzjcTable">
+                          <h4 class="title">支原体、衣原体</h4>
+                          <table id="zyt" lay-filter="fuzjFilter"></table>
+                        </div>
+                        
+                        <div id="frsPanel" class="hide fzjcTable">
+                          <h4 class="title">B超—非妊娠</h4>
+                          <table id="frs" lay-filter="fuzjFilter"></table>
+                          <button type="button" class="layui-btn hide" id="frsfjone"></button>
+                          <button type="button" class="layui-btn hide" id="frsfjtwo"></button>
+                        </div>
+                        <div id="rsqPanel" class="hide fzjcTable">
+                          <h4 class="title">B超—妊娠期</h4>
+                          <table id="rsq" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="xjslxPanel" class="hide fzjcTable">
+                          <h4 class="title">性激素六项</h4>
+                          <table id="xjslx" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="ysxPanel" class="hide fzjcTable">
+                          <h4 class="title">孕三项</h4>
+                          <table id="ysx" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="hcgPanel" class="hide fzjcTable">
+                          <h4 class="title">HCG</h4>
+                          <table id="hcg" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="amhPanel" class="hide fzjcTable">
+                          <h4 class="title">AMH</h4>
+                          <table id="amh" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="jgPanel" class="hide fzjcTable">
+                          <h4 class="title">甲功</h4>
+                          <table id="jg" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="yswxPanel" class="hide fzjcTable">
+                          <h4 class="title">优生五项(TORCH)</h4>
+                          <table id="yswx" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="ysPanel" class="hide fzjcTable">
+                          <h4 class="title">叶酸</h4>
+                          <table id="ys" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="szmyktPanel" class="hide fzjcTable">
+                          <h4 class="title">生殖免疫抗体</h4>
+                          <table id="szmykt" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="nxgnPanel" class="hide fzjcTable">
+                          <h4 class="title">凝血功能</h4>
+                          <table id="nxgn" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="slgjcPanel" class="hide fzjcTable">
+                          <h4 class="title">输卵管检查</h4>
+                          <table id="slgjc" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="jycgPanel" class="hide fzjcTable">
+                          <h4 class="title">精液常规+顶体酶</h4>
+                          <table id="jycg" lay-filter="fuzjFilter"></table>
+                        </div>
+                        <div id="qtPanel" class="hide fzjcTable">
+                          <h4 class="title">其他</h4>
+                          <table id="qt" lay-filter="fuzjFilter"></table>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item" id='zdPanel'>
+                      <h2 class="layui-colla-title">诊断</h2>
+                      <div class="layui-colla-content layui-show">
+                        <div class="layui-row">
+                          <div class="layui-col-md6">
+                            <input type="text" class="xmselect" ng-model="zd.zd">
+                            <select id="zd"  xm-select="zd" xm-select-type="1" xm-select-search="" xm-select-search-type="dl">
+                              <option value=""></option>           
+                            </select>
+                          </div>
+                          <div class="layui-col-md6">
+                            <input type="text" class="layui-input" ng-model="zd.zdtext"  placeholder="">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="layui-colla-item hide" id='clPanel'>
+                      <h2 class="layui-colla-title">处理</h2>
+                      <div class="layui-colla-content">
+                        <textarea placeholder="处理" class="layui-textarea" ng-model="cl.cl"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  
+               </form>
+             </div>
+             <div class="layui-tab-item">
+               <div class="layui-row layui-col-space15">
+                 <div class="layui-row">
+                  <div class="layui-form-item hide" >
+                      <label for="L_pass" class="layui-form-label"><span class="x-red"></span>时间</label>
+                      <div class="layui-input-block">
+                        <input type="text" class="layui-input" id="bqglTime" style="width: 300px;" ng-model="bqgl.time" placeholder="yyyy-MM-dd HH:mm:ss">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"></div>
+                  </div>
+                  <div class="layui-form-item" >
+                      <label for="L_repass" class="layui-form-label">
+                          <span class="x-red"></span>主证
+                      </label>
+                      <div class="layui-input-block">
+                          <input type="text" ng-model="bqgl.zz" autocomplete="off" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"></div>
+                  </div>
+                  <div class="layui-form-item" id="repassBox">
+                      <label for="L_repass" class="layui-form-label">
+                          <span class="x-red"></span>次证、兼证
+                      </label>
+                      <div class="layui-input-block">
+                          <input type="text" ng-model="bqgl.cz" autocomplete="off" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"></div>
+                  </div>
+                  <div class="layui-form-item" id="repassBox">
+                      <label for="L_repass" class="layui-form-label">
+                          <span class="x-red"></span>舌脉
+                      </label>
+                      <div class="layui-input-block">
+                          <input type="text" ng-model="bqgl.sm" autocomplete="off" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"></div>
+                  </div>
+                  <div class="layui-form-item" id="repassBox">
+                      <label for="L_repass" class="layui-form-label">
+                          <span class="x-red"></span>诊断
+                      </label>
+                      <div class="layui-input-block">
+                          <input type="text" ng-model="bqgl.zd" autocomplete="off" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"><button class="layui-btn" ng-click="getBqglInfo('zd')" style="height: 30px;">同步诊断信息</button></div>
+                  </div>
+                  <div class="layui-form-item" id="repassBox">
+                      <label for="L_repass" class="layui-form-label">
+                          <span class="x-red"></span>治疗
+                      </label>
+                      <div class="layui-input-block">
+                          <input type="text" ng-model="bqgl.zl" autocomplete="off" class="layui-input">
+                      </div>
+                      <div class="layui-form-mid layui-word-aux"><button class="layui-btn" ng-click="getBqglInfo('zl')" style="height: 30px;">同步治疗信息</button></div>
+                  </div>
+                 </div>
+                 <table id="bqgl" lay-filter="bqgl"></table>
+               </div>  
+             </div>
+             <div class="layui-tab-item">
+               <!-- <div class="layui-row layui-col-space15">
+                 <table id="jcgl" lay-filter="jcgl"></table>
+               </div>  -->        
+               <div class="layui-row">
+                <div id="bdcgPanelGl" class="hide fzjcTable">
+                  <h4 class="title">白带常规</h4>
+                  <table id="bdcgGl" lay-filter="bdcgGl"></table>
+                </div>
+                <div id="fkjcPanelGl" class="hide fzjcTable">
+                  <h4 class="title">妇科检查</h4>
+                  <table id="fkjcGl" lay-filter="fkjcGl"></table>
+                  <button type="button" class="layui-btn hide" id="jcglfj"></button>
+                </div>
+                <div id="dzydjPanelGl" class="hide fzjcTable">
+                  <h4 class="title">HPV、TCT、电子阴道镜</h4>
+                  <table id="dzydjGl" lay-filter="dzydjGl"></table>
+                </div>
+                <div id="zytPanelGl" class="hide fzjcTable">
+                  <h4 class="title">支原体、衣原体</h4>
+                  <table id="zytGl" lay-filter="zytGl"></table>
+                </div>
+                
+                <div id="frsPanelGl" class="hide fzjcTable">
+                  <h4 class="title">B超—非妊娠</h4>
+                  <table id="frsGl" lay-filter="frsGl"></table>
+                </div>
+                <div id="rsqPanelGl" class="hide fzjcTable">
+                  <h4 class="title">B超—妊娠期</h4>
+                  <table id="rsqGl" lay-filter="rsqGl"></table>
+                </div>
+                <div id="xjslxPanelGl" class="hide fzjcTable">
+                  <h4 class="title">性激素六项</h4>
+                  <table id="xjslxGl" lay-filter="xjslxGl"></table>
+                </div>
+                <div id="ysxPanelGl" class="hide fzjcTable">
+                  <h4 class="title">孕三项</h4>
+                  <table id="ysxGl" lay-filter="ysxGl"></table>
+                </div>
+                <div id="hcgPanelGl" class="hide fzjcTable">
+                  <h4 class="title">HCG</h4>
+                  <table id="hcgGl" lay-filter="hcgGl"></table>
+                </div>
+                <div id="amhPanelGl" class="hide fzjcTable">
+                  <h4 class="title">AMH</h4>
+                  <table id="amhGl" lay-filter="amhGl"></table>
+                </div>
+                <div id="jgPanelGl" class="hide fzjcTable">
+                  <h4 class="title">甲功</h4>
+                  <table id="jgGl" lay-filter="jgGl"></table>
+                </div>
+                <div id="yswxPanelGl" class="hide fzjcTable">
+                  <h4 class="title">优生五项(TORCH)</h4>
+                  <table id="yswxGl" lay-filter="yswxGl"></table>
+                </div>
+                <div id="ysPanelGl" class="hide fzjcTable">
+                  <h4 class="title">叶酸</h4>
+                  <table id="ysGl" lay-filter="ysGl"></table>
+                </div>
+                <div id="szmyktPanelGl" class="hide fzjcTable">
+                  <h4 class="title">生殖免疫抗体</h4>
+                  <table id="szmyktGl" lay-filter="szmyktGl"></table>
+                </div>
+                <div id="nxgnPanelGl" class="hide fzjcTable">
+                  <h4 class="title">凝血功能</h4>
+                  <table id="nxgnGl" lay-filter="nxgnGl"></table>
+                </div>
+                <div id="slgjcPanelGl" class="hide fzjcTable">
+                  <h4 class="title">输卵管检查</h4>
+                  <table id="slgjcGl" lay-filter="slgjcGl"></table>
+                </div>
+                <div id="jycgPanelGl" class="hide fzjcTable">
+                  <h4 class="title">精液常规+顶体酶</h4>
+                  <table id="jycgGl" lay-filter="jycgGl"></table>
+                </div>
+                <div id="qtPanelGl" class="hide fzjcTable">
+                  <h4 class="title">其他</h4>
+                  <table id="qtGl" lay-filter="qtGl"></table>
+                </div>
+               </div>
+             </div>
+             <div class="layui-tab-item">
+               <div class="layui-row layui-col-space15">
+               <div class="layui-card-header">
+                   <button class="layui-btn" ng-click="addBqgc()"><i class="iconfont icontianjia"> </i>添加</button>
+                   <button class="layui-btn" ng-click="updateBqgc()"><i class="iconfont iconxiugai"> </i>修改</button>
+                   <button class="layui-btn" ng-click="delBqgc()"><i class="iconfont iconshanchu"> </i>删除</button>
+               </div>
+               <table id="bqgc" lay-filter="bqgc"></table>
+               </div>
+             </div>
+           </div>
+         </div>
+         <div>
+           <div class="layui-form-item" style="margin-top: 10px;">
+             <div class="layui-input-block">
+               <button class="layui-btn moddelType" ng-click="save()">保存</button>
+               <button class="layui-btn" ng-click="close()">取消</button>
+               <button id="print" class="layui-btn" ng-click="seeCourse()">打印</button>
+             </div>
+           </div>
+         </div>
+      </div>
+      <span class="layui-layer-setwin"><a class="iconfont iconzuidahua windowMax" href="javascript:;"></a><a class="iconfont iconsuoxiao windowMin" href="javascript:;"></a><a class="iconfont iconguanbi windowClose" href="javascript:;"></a></span>
+      <span class="layui-layer-resize"></span>
+    </div>
+    <div id="bqgcModel" class="layui-layer-iframe">
+      <div class="layui-layer-title" style="cursor: move;">查看</div>
+      <div class="layui-layer-content" >
+         <input type="text" class="layui-input hide" name="bqgcId" id="bqgcId">
+         <input type="text" class="layui-input" verify="required" name="bqgcTime" id="bqgcTime" placeholder="yyyy-MM-dd HH:mm:ss">
+         <textarea id="editor" placeholder=""></textarea>
+         <div class="layui-form-item">
+             <label class="layui-form-label">
+             </label>
+             <button ng-click="saveBqgc()" class="layui-btn">保存</button>
+             <label class="layui-form-label"></label>
+             <button ng-click="closeBqgcAdd()" class="layui-btn">取消</button>
+         </div>
+      </div>
+      <span class="layui-layer-setwin"><a class="iconfont iconzuidahua windowMax" href="javascript:;"></a><a class="iconfont iconsuoxiao windowMin" href="javascript:;"></a><a class="iconfont iconguanbi windowClose" href="javascript:;"></a></span>
+      <span class="layui-layer-resize"></span>
+    </div>
+    <div id="modelSee" class="layui-layer-iframe">
+      <div class="layui-layer-title" style="cursor: move;">查看</div>
+      <div class="layui-layer-content" >
+         <iframe id="fReport"  style="width: 1200px;height: 840px;border: 0px;" ></iframe>
+      </div>
+      <span class="layui-layer-setwin"><a class="iconfont iconzuidahua windowMax" href="javascript:;"></a><a class="iconfont iconsuoxiao windowMin" href="javascript:;"></a><a class="iconfont iconguanbi windowClose" href="javascript:;"></a></span>
+      <span class="layui-layer-resize"></span>
+    </div>
+    <div id="addBaseInfoModel" class="layui-layer-iframe">
+      <div class="layui-layer-title" style="cursor: move;">添加基本信息</div>
+      <div class="layui-layer-content">
+         <div class="layui-row">
+            <form class="layui-form" id="addBaseInfo">
+              <div class="layui-form-item">
+                  <label class="layui-form-label"><span class="x-red">*</span>病人编号：</label>
+                  <div class="layui-input-inline">
+                    <input type="text" class="layui-input" style="display: none;" verify="required" ng-model="addMedical.id" autocomplete="off" placeholder="">
+                    <input type="text" class="layui-input" verify="required" ng-model="addMedical.patientId" autocomplete="off" placeholder="">
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label"><span class="x-red">*</span>姓名：</label>
+                  <div class="layui-input-inline">
+                    <input type="text" class="layui-input" verify="required" name="name" id="name"  ng-model="addMedical.name" autocomplete="off" placeholder="请输入姓名">
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <div class="layui-form-item">
+                    <label class="layui-form-label">性别：</label>
+                    <div class="layui-input-inline" id="addSex" modelVal="addMedical" modelId="sex">
+                        
+                    </div>
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <div class="layui-form-item">
+                    <label class="layui-form-label"><span class="x-red">*</span>年龄：</label>
+                    <div class="layui-input-inline">
+                      <input type="text" class="layui-input" verify="required" name="age" id="age" ng-model="addMedical.age"  autocomplete="off" placeholder="请输入年龄">
+                    </div>
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label">职业：</label>
+                  <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="occupation" id="occupation" ng-model="addMedical.occupation" autocomplete="off" placeholder="请输入职业">
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label">联系电话：</label>
+                  <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="phone" id="phone" onblur="displayResult(this,'phone')"  ng-model="addMedical.phone" autocomplete="off" placeholder="请输入电话">
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label">家庭住址：</label>
+                  <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="address" id="address" ng-model="addMedical.address" autocomplete="off" placeholder="请输入家庭住址">
+                  </div>
+              </div>
+              <div class="layui-form-item">
+                  <label class="layui-form-label">
+                  </label>
+                  <button ng-click="saveBaseInfo()" class="layui-btn">保存</button>
+                  <label class="layui-form-label"></label>
+                  <button ng-click="closeAdd()" class="layui-btn">取消</button>
+              </div>
+            </form>
+        </div>
+      </div>
+      <span class="layui-layer-setwin"><a class="iconfont iconzuidahua windowMax" href="javascript:;"></a><a class="iconfont iconsuoxiao windowMin" href="javascript:;"></a><a class="iconfont iconguanbi windowClose" href="javascript:;"></a></span>
+      <span class="layui-layer-resize"></span>
+    </div>
+  </body>
+  
+  <script src="../../css/jquery/jquery-3.3.1.js" type="text/javascript"></script>
+  <script src="../../css/X-admin/lib/layui/layui.js" type="text/javascript"></script>
+  <script src="../../css/X-admin/js/xadmin.js" type="text/javascript"></script>
+  <script src="../../css/angularjs/angular.js" type="text/javascript"></script>
+  <script src="../../css/base/common.js" type="text/javascript"></script>
+  <script src="../../css/layuinotice/dist/notice.js" type="text/javascript"></script>
+  <script src="../../css/formSelects/formSelects-v4.js" type="text/javascript"></script>
+  <script src="../../css/simditor/site/assets/scripts/module.js" type="text/javascript"></script>
+  <script src="../../css/simditor/site/assets/scripts/hotkeys.js" type="text/javascript"></script>
+  <script src="../../css/simditor/site/assets/scripts/simditor.js" type="text/javascript"></script>
+  <script src="js/controller.js" type="text/javascript"></script>
+  <script src="js/service.js" type="text/javascript"></script>
+  <script>
+    var editor = new Simditor({
+      textarea: $('#editor'),
+      toolbar:  ['title','bold','italic','underline','strikethrough','fontScale','color','ol','ul','blockquote','code','table','link','hr','indent','outdent','alignment']
+    });
+
+  </script>
+  <script type="text/html" id="sexToolBar">
+        {{#if (d.sex == 1) { }}
+        <span>男</span>
+        {{# }else if(d.sex == 2){ }}
+        <span>女</span>
+        {{# } }}
+  </script>
+  <script type="text/html" id="ageToolBar">
+        <span>{{d.age}}岁</span>
+  </script>
+  <script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" onclick="add(this)">添加</button>
+    <button class="layui-btn layui-btn-sm" onclick="del(this)">删除</button>
+    </div>
+  </script>
+  <script type="text/html" id="collection">
+  <input type="checkbox"  value="{{d.id}}" onchange="changeSwitch(this,'collection')" lay-skin="switch" lay-text="收藏|未收藏"   {{ d.isCollection == 1 ? 'checked' : '' }}>
+  </script>
+  <script type="text/html" id="today">
+  <input type="checkbox"  value="{{d.id}}" onchange="changeSwitch(this,'today')" lay-skin="switch" lay-text="今日就诊|否"   {{ d.isToday == 1 ? 'checked' : '' }}>
+  </script>
+  <script type="text/html" id="sfzy">
+  <input type="checkbox"  value="{{d.id}}" onchange="changeSwitch(this,'sfzy')" lay-skin="switch" lay-text="已治愈|未治愈"   {{ d.sfzy == 1 ? 'checked' : '' }}>
+  </script>
+  <script type="text/html" id="fj1Bar">
+        {{#if (d.fj1 !=null &&d.fj1 !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj1}}', '附件一{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        {{# }else { }}
+        <span>未上传</span>
+        {{# } }}
+  </script>
+  <script type="text/html" id="fj2Bar">
+        {{#if (d.fj2 !=null &&d.fj2 !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj2}}', '附件二{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        {{# }else { }}
+        <span>未上传</span>
+        {{# } }}
+  </script>
+  <script type="text/html" id="frsFj1Bar">
+        {{#if (d.fj1 !=null &&d.fj1 !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj1}}', '附件一{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        <a class="tableDownload" onclick="frsFj1Click('{{d.id}}')">重新上传</a>
+        {{# }else { }}
+        <a class="tableDownload" onclick="frsFj1Click('{{d.id}}')">上传</a>
+        {{# } }}
+  </script>
+  <script type="text/html" id="frsFj2Bar">
+        {{#if (d.fj2 !=null &&d.fj2 !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj2}}', '附件一{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        <a class="tableDownload" onclick="frsFj2Click('{{d.id}}')">重新上传</a>
+        {{# }else { }}
+        <a class="tableDownload" onclick="frsFj2Click('{{d.id}}')">上传</a>
+        {{# } }}
+  </script>
+  <script type="text/html" id="jcglFj1Bar">
+        {{#if (d.fj1 !=null &&d.fj1 !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj1}}', '附件一{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        <a class="tableDownload" onclick="jcglFj1Click('{{d.id}}')">重新上传</a>
+        {{# }else { }}
+        <a class="tableDownload" onclick="jcglFj1Click('{{d.id}}')">上传</a>
+        {{# } }}
+  </script>
+  <script type="text/html" id="jcglFj2Bar">
+        {{#if (d.fj2 !=null &&d.fj2 !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj2}}', '附件二{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        <a class="tableDownload" onclick="jcglFj2Click('{{d.id}}')">重新上传</a>
+        {{# }else { }}
+        <a class="tableDownload" onclick="jcglFj2Click('{{d.id}}')">上传</a>
+        {{# } }}
+  </script>
+  <script type="text/html" id="bqgcBar">
+        <a class="tableDownload" onclick="seeBqgc()">查看</a>
+  </script>
+  <script type="text/html" id="fkjcFjBar">
+        {{#if (d.fj !=null &&d.fj !='') { }}
+        <a class="tableDownload" onclick="downloadFile('{{d.fj}}', '附件{{ layui.util.toDateString(d.time, "yyyy-MM-dd HH:mm:ss") }}')">下载</a>
+        <a class="tableDownload" onclick="fkjcFjClick('{{d.id}}')">重新上传</a>
+        {{# }else { }}
+        <a class="tableDownload" onclick="fkjcFjClick('{{d.id}}')">上传</a>
+        {{# } }}
+  </script>
+</html>
