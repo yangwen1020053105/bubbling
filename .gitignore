@@ -1,3 +1,4 @@
 /bubbling-frame1.0.iml
 /.idea
 /target
+/src/main/resources/application-dev.properties
